@@ -1,11 +1,30 @@
 const gameArea = document.querySelector(".game-area");
 
 const btnStart = document.querySelector("#start-btn");
+
 const scoreElement = document.querySelector("#score");
+const timerElement = document.querySelector("#timer");
 
 let target;
 
+
+
 btnStart.addEventListener("click", () => {
+    btnStart.style.display = "none";
+    gameArea.classList.remove("game-over");
+    let timeLeft = 30;
+    timerElement.textContent = timeLeft;
+    const timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft === 0) {
+            clearInterval(timerInterval);
+            gameArea.classList.add("game-over");
+            gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>`;
+            btnStart.style.display = "inline-block";
+        }
+    }, 1000);
     let score = 0;
     scoreElement.textContent = score;
     gameArea.innerHTML = `<button id="target" type="button"></button>`;
