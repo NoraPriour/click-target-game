@@ -1,15 +1,20 @@
 const gameArea = document.querySelector(".game-area");
 
 const btnStart = document.querySelector("#start-btn");
+const scoreElement = document.querySelector("#score");
 
 let target;
 
 btnStart.addEventListener("click", () => {
+    let score = 0;
+    scoreElement.textContent = score;
     gameArea.innerHTML = `<button id="target" type="button"></button>`;
 
     target = document.querySelector("#target");
     moveTarget();
     target.addEventListener("click", () => {
+        score++;
+        scoreElement.textContent = score;
         moveTarget();
     });
 
