@@ -39,6 +39,11 @@ public class ScoreController {
         return "Score saved";
     }
 
+    @GetMapping("/leaderboard")
+    public List<Score> getLeaderboard() {
+        return scoreRepository.findTop10ByOrderByScoreDesc();
+    }
+
     @GetMapping("/scores/{username}")
     public List<Score> getScoresByUsername(@PathVariable String username) {
         Optional<User> existingUser = userRepository.findByUsername(username);
@@ -51,5 +56,4 @@ public class ScoreController {
 
         return scoreRepository.findByUser(user);
     }
-
 }
