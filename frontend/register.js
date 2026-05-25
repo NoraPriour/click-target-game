@@ -1,11 +1,12 @@
 const registerForm = document.querySelector("#registerForm");
-
+const submitButton = registerForm.querySelector("button");
 const registerActions = document.querySelector("#register-actions");
 
 registerForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
+    submitButton.disabled = true;
     fetch("http://localhost:8080/api/register", {
         method: "POST",
         headers: {
@@ -31,14 +32,16 @@ registerForm.addEventListener("submit", (event) => {
                 });
                 registerActions.innerHTML = "";
                 registerActions.appendChild(playButton);
-                
+
             } else {
                 message.className = "error";
+                submitButton.disabled = false;
             }
         })
         .catch(error => {
             const message = document.querySelector("#message");
             message.textContent = "Impossible de contacter le serveur.";
             message.className = "error";
+            submitButton.disabled = false;
         });
 });
