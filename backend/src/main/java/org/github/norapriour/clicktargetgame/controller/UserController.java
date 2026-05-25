@@ -2,6 +2,7 @@ package org.github.norapriour.clicktargetgame.controller;
 
 import org.github.norapriour.clicktargetgame.model.User;
 import org.github.norapriour.clicktargetgame.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -16,12 +17,14 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @PostMapping("/register")
     public String register(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return "Username already exists";
         }
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "User created";
     }
@@ -33,7 +36,7 @@ public class UserController {
             return "Invalid username or password";
         }
         User foundUser = existingUser.get();
-        if (foundUser.getPassword().equals(user.getPassword())) {
+        if (passwordEncoder.matches(user.getPassword(), foundUser.getPassword())) {
             return "Login successful";
         }
         return "Invalid username or password";
