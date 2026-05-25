@@ -5,12 +5,15 @@ const btnStart = document.querySelector("#start-btn");
 const scoreElement = document.querySelector("#score");
 const timerElement = document.querySelector("#timer");
 
+const leaderboardList = document.querySelector("#leaderboard-list");
+
 const historyBtn = document.querySelector("#history-btn");
-const historyArea = document.querySelector(".history");
 const scoreHistory = document.querySelector("#score-history");
 
 const username = localStorage.getItem("username");
 const userStatus = document.getElementById("user-status");
+
+displayLeaderboard();
 
 if (username) {
     userStatus.textContent = `Connecté en tant que ${username}`;
@@ -55,6 +58,19 @@ btnStart.addEventListener("click", () => {
     });
 
 });
+
+function displayLeaderboard() {
+    fetch("http://localhost:8080/api/leaderboard")
+        .then(response => response.json())
+        .then(scores => {
+            leaderboardList.innerHTML = "";
+            scores.forEach(score => {
+                const li = document.createElement("li");
+                li.textContent = `${score.username} : ${score.score}`;
+                leaderboardList.appendChild(li);
+            });
+        });
+};
 
 historyBtn.addEventListener("click", () => {
     historyBtn.style.display = "none";

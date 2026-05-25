@@ -1,5 +1,6 @@
 package org.github.norapriour.clicktargetgame.controller;
 
+import org.github.norapriour.clicktargetgame.dto.LeaderboardResponse;
 import org.github.norapriour.clicktargetgame.dto.ScoreRequest;
 import org.github.norapriour.clicktargetgame.model.Score;
 import org.github.norapriour.clicktargetgame.model.User;
@@ -40,8 +41,15 @@ public class ScoreController {
     }
 
     @GetMapping("/leaderboard")
-    public List<Score> getLeaderboard() {
-        return scoreRepository.findTop10ByOrderByScoreDesc();
+    public List<LeaderboardResponse> getLeaderboard() {
+        return scoreRepository.findTop10ByOrderByScoreDesc()
+                .stream()
+                .map(score -> new LeaderboardResponse(
+                        score.getUser().getUsername(),
+                        score.getScore(),
+                        score.getDate()
+                ))
+                .toList();
     }
 
     @GetMapping("/scores/{username}")
