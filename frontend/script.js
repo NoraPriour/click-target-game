@@ -23,14 +23,15 @@ if (username) {
     registerLink.style.display = "none";
     loginLink.style.display = "none";
     logoutBtn.style.display = "inline-block";
-    logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("username");
-        window.location.reload();
-    });
 } else {
     userStatus.textContent = "Non connecté";
     logoutBtn.style.display = "none";
 }
+
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("username");
+    window.location.reload();
+});
 
 let target;
 
