@@ -9,14 +9,24 @@ loginForm.addEventListener("submit", (event) => {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username : username, password : password })
+        body: JSON.stringify({ username: username, password: password })
     })
-    .then(response => response.text())
-    .then(data => {
-        document.querySelector("#message").textContent = data;
-        if (data === "Login successful") {
-            localStorage.setItem("username", username);
-            window.location.href = "index.html";
-        }
-    });
+        .then(response => response.text())
+        .then(data => {
+            if (data === "Login successful") {
+                localStorage.setItem("username", username);
+                window.location.href = "index.html";
+            }
+            const message = document.querySelector("#message");
+            message.textContent = data;
+
+            if (data === "Login successful" || data === "User created") {
+                message.className = "success";
+            } else {
+                message.className = "error";
+            }
+        })
+        .catch(error => {
+            document.querySelector("#message").textContent = "Impossible de contacter le serveur.";
+        });
 });

@@ -1,5 +1,7 @@
 const registerForm = document.querySelector("#registerForm");
 
+const registerActions = document.querySelector("#register-actions");
+
 registerForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = document.querySelector("#username").value;
@@ -9,10 +11,34 @@ registerForm.addEventListener("submit", (event) => {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username : username, password : password })
+        body: JSON.stringify({ username: username, password: password })
     })
-    .then(response => response.text())
-    .then(data => {
-        document.querySelector("#message").textContent = data;
-    });
+        .then(response => response.text())
+        .then(data => {
+            const message = document.querySelector("#message");
+            message.textContent = data;
+
+            if (data === "User created") {
+                message.className = "success";
+                localStorage.setItem("username", username);
+
+                const playButton = document.createElement("button");
+                playButton.type = "button";
+                playButton.textContent = "Jouer !";
+
+                playButton.addEventListener("click", () => {
+                    window.location.href = "index.html";
+                });
+                registerActions.innerHTML = "";
+                registerActions.appendChild(playButton);
+                
+            } else {
+                message.className = "error";
+            }
+        })
+        .catch(error => {
+            const message = document.querySelector("#message");
+            message.textContent = "Impossible de contacter le serveur.";
+            message.className = "error";
+        });
 });

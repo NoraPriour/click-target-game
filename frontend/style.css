@@ -137,3 +137,11 @@ footer {
     border: 1px solid #d1d5db;
     border-radius: 4px;
 }
+
+.success {
+    color: #16a34a;
+}
+
+.error {
+    color: #dc2626;
+}
