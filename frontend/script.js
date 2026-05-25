@@ -10,15 +10,26 @@ const leaderboardList = document.querySelector("#leaderboard-list");
 const historyBtn = document.querySelector("#history-btn");
 const scoreHistory = document.querySelector("#score-history");
 
+const registerLink = document.querySelector("#register-link");
+const loginLink = document.querySelector("#login-link");
 const username = localStorage.getItem("username");
 const userStatus = document.getElementById("user-status");
+const logoutBtn = document.querySelector("#logout-btn");
 
 displayLeaderboard();
 
 if (username) {
     userStatus.textContent = `Connecté en tant que ${username}`;
+    registerLink.style.display = "none";
+    loginLink.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+    logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("username");
+        window.location.reload();
+    });
 } else {
     userStatus.textContent = "Non connecté";
+    logoutBtn.style.display = "none";
 }
 
 let target;
@@ -74,27 +85,7 @@ function displayLeaderboard() {
 
 historyBtn.addEventListener("click", () => {
     historyBtn.style.display = "none";
-    if (!username) {
-        scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique.</li>";
-        return;
-    }
-
-    fetch(`http://localhost:8080/api/scores/${username}`)
-        .then(response => response.json())
-        .then(scores => {
-            scoreHistory.innerHTML = "";
-
-            if (scores.length === 0) {
-                scoreHistory.innerHTML = "<li>Aucune partie enregistrée.</li>";
-                return;
-            }
-
-            scores.forEach(score => {
-                const li = document.createElement("li");
-                li.textContent = `Score : ${score.score} - le ${score.date}`;
-                scoreHistory.appendChild(li);
-            });
-        });
+    loadHistory();
 });
 
 function moveTarget() {
@@ -123,7 +114,32 @@ function saveScore() {
         .then(data => {
             console.log(data);
             if (data === "Score saved") {
-                historyBtn.click();
+                loadHistory();
+                displayLeaderboard();
             }
         });
 }
+
+function loadHistory() {
+    if (!username) {
+        scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique.</li>";
+        return;
+    }
+
+    fetch(`http://localhost:8080/api/scores/${username}`)
+        .then(response => response.json())
+        .then(scores => {
+            scoreHistory.innerHTML = "";
+
+            if (scores.length === 0) {
+                scoreHistory.innerHTML = "<li>Aucune partie enregistrée.</li>";
+                return;
+            }
+
+            scores.forEach(score => {
+                const li = document.createElement("li");
+                li.textContent = `Score : ${score.score} - le ${score.date}`;
+                scoreHistory.appendChild(li);
+            });
+        });
+};
