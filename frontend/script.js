@@ -5,8 +5,13 @@ const btnStart = document.querySelector("#start-btn");
 const scoreElement = document.querySelector("#score");
 const timerElement = document.querySelector("#timer");
 
+const historyBtn = document.querySelector("#history-btn");
+const historyArea = document.querySelector(".history");
+const scoreHistory = document.querySelector("#score-history");
+
 const username = localStorage.getItem("username");
 const userStatus = document.getElementById("user-status");
+
 if (username) {
     userStatus.textContent = `Connecté en tant que ${username}`;
 } else {
@@ -14,8 +19,6 @@ if (username) {
 }
 
 let target;
-
-
 
 btnStart.addEventListener("click", () => {
     btnStart.style.display = "none";
@@ -53,6 +56,31 @@ btnStart.addEventListener("click", () => {
 
 });
 
+historyBtn.addEventListener("click", () => {
+    historyBtn.style.display = "none";
+    if (!username) {
+        scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique.</li>";
+        return;
+    }
+
+    fetch(`http://localhost:8080/api/scores/${username}`)
+        .then(response => response.json())
+        .then(scores => {
+            scoreHistory.innerHTML = "";
+
+            if (scores.length === 0) {
+                scoreHistory.innerHTML = "<li>Aucune partie enregistrée.</li>";
+                return;
+            }
+
+            scores.forEach(score => {
+                const li = document.createElement("li");
+                li.textContent = `Score : ${score.score} - le ${score.date}`;
+                scoreHistory.appendChild(li);
+            });
+        });
+});
+
 function moveTarget() {
     const gameAreaRect = gameArea.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
@@ -66,17 +94,20 @@ function moveTarget() {
 
 function saveScore() {
     fetch("http://localhost:8080/api/scores", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        username: username,
-        score: Number(scoreElement.textContent)
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            score: Number(scoreElement.textContent)
+        })
     })
-})
-.then(response => response.text())
-.then(data => {
-    console.log(data);
-});
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+            if (data === "Score saved") {
+                historyBtn.click();
+            }
+        });
 }

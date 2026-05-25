@@ -7,6 +7,7 @@ import org.github.norapriour.clicktargetgame.repository.ScoreRepository;
 import org.github.norapriour.clicktargetgame.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,7 +26,7 @@ public class ScoreController {
     @PostMapping("/scores")
     public String saveScore(@RequestBody ScoreRequest scoreRequest) {
         Optional<User> existingUser = userRepository.findByUsername(scoreRequest.getUsername());
-        
+
         if (existingUser.isEmpty()) {
             return "User not found";
         }
@@ -36,6 +37,19 @@ public class ScoreController {
         scoreRepository.save(score);
 
         return "Score saved";
+    }
+
+    @GetMapping("/scores/{username}")
+    public List<Score> getScoresByUsername(@PathVariable String username) {
+        Optional<User> existingUser = userRepository.findByUsername(username);
+
+        if (existingUser.isEmpty()) {
+            return List.of();
+        }
+
+        User user = existingUser.get();
+
+        return scoreRepository.findByUser(user);
     }
 
 }
