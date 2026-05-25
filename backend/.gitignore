@@ -18,7 +18,6 @@ target/
 *.iws
 *.iml
 *.ipr
-backend/data/
 
 ### NetBeans ###
 /nbproject/private/
