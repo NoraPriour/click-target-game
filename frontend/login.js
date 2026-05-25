@@ -15,6 +15,7 @@ loginForm.addEventListener("submit", (event) => {
     .then(data => {
         document.querySelector("#message").textContent = data;
         if (data === "Login successful") {
+            localStorage.setItem("username", username);
             window.location.href = "index.html";
         }
     });

@@ -5,6 +5,14 @@ const btnStart = document.querySelector("#start-btn");
 const scoreElement = document.querySelector("#score");
 const timerElement = document.querySelector("#timer");
 
+const username = localStorage.getItem("username");
+const userStatus = document.getElementById("user-status");
+if (username) {
+    userStatus.textContent = `Connecté en tant que ${username}`;
+} else {
+    userStatus.textContent = "Non connecté";
+}
+
 let target;
 
 
