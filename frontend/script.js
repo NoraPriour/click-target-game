@@ -29,7 +29,12 @@ btnStart.addEventListener("click", () => {
         if (timeLeft === 0) {
             clearInterval(timerInterval);
             gameArea.classList.add("game-over");
-            gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>`;
+            if (username) {
+                gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>`;
+            } else {
+                gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>
+        <p>Connecte-toi pour sauvegarder tes scores.</p>`;
+            }
             btnStart.style.display = "inline-block";
         }
     }, 1000);
