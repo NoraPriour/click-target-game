@@ -31,6 +31,7 @@ btnStart.addEventListener("click", () => {
             gameArea.classList.add("game-over");
             if (username) {
                 gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>`;
+                saveScore();
             } else {
                 gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>
         <p>Connecte-toi pour sauvegarder tes scores.</p>`;
@@ -61,4 +62,21 @@ function moveTarget() {
     const randomY = Math.floor(Math.random() * maxY);
     target.style.left = `${randomX}px`;
     target.style.top = `${randomY}px`;
+}
+
+function saveScore() {
+    fetch("http://localhost:8080/api/scores", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        username: username,
+        score: Number(scoreElement.textContent)
+    })
+})
+.then(response => response.text())
+.then(data => {
+    console.log(data);
+});
 }
