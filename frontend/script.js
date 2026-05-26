@@ -7,6 +7,8 @@ const timerElement = document.querySelector("#timer");
 
 const leaderboardList = document.querySelector("#leaderboard-list");
 
+const historySection = document.querySelector(".history");
+const historyTitle = document.querySelector("#history-title");
 const historyBtn = document.querySelector("#history-btn");
 const scoreHistory = document.querySelector("#score-history");
 
@@ -23,23 +25,46 @@ if (username) {
     registerLink.style.display = "none";
     loginLink.style.display = "none";
     logoutBtn.style.display = "inline-block";
+    historyBtn.textContent = "Voir mes anciens scores";
+    logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("username");
+        window.location.reload();
+    });
+
 } else {
     userStatus.textContent = "Non connecté";
     logoutBtn.style.display = "none";
+    historyBtn.textContent = "S'inscrire pour voir mes anciens scores";
+
 }
 
-logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("username");
-    window.location.reload();
-});
-
 let target;
+let isHistoryVisible = false;
 
 btnStart.addEventListener("click", () => {
     btnStart.style.display = "none";
     gameArea.classList.remove("game-over");
+    startCountdown();
+});
+
+function startGame() {
     let timeLeft = 30;
+    let score = 0;
+
     timerElement.textContent = timeLeft;
+    scoreElement.textContent = score;
+
+    gameArea.innerHTML = `<button id="target" type="button"></button>`;
+
+    target = document.querySelector("#target");
+    moveTarget();
+
+    target.addEventListener("click", () => {
+        score++;
+        scoreElement.textContent = score;
+        moveTarget();
+    });
+
     const timerInterval = setInterval(() => {
         timeLeft--;
         timerElement.textContent = timeLeft;
@@ -47,29 +72,56 @@ btnStart.addEventListener("click", () => {
         if (timeLeft === 0) {
             clearInterval(timerInterval);
             gameArea.classList.add("game-over");
+
             if (username) {
-                gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>`;
+                gameArea.innerHTML = `
+    <div class="game-over-content">
+        <h2>Temps écoulé !</h2>
+        <p>Ton score : ${scoreElement.textContent}</p>
+        <button id="replay-btn" type="button">Rejouer</button>
+    </div>
+`;
                 saveScore();
             } else {
-                gameArea.innerHTML = `<h2>Temps écoulé ! Ton score : ${scoreElement.textContent}</h2>
-        <p>Connecte-toi pour sauvegarder tes scores.</p>`;
+                gameArea.innerHTML = `
+    <div class="game-over-content">
+        <h2>Temps écoulé !</h2>
+        <p>Ton score : ${scoreElement.textContent}</p>
+        <a href="register.html">Crée ton compte pour sauvegarder tes scores.</a>
+        <button id="replay-btn" type="button">Rejouer en mode invité</button>
+    </div>
+`;
             }
-            btnStart.style.display = "inline-block";
+            const replayBtn = document.querySelector("#replay-btn");
+
+            replayBtn.addEventListener("click", () => {
+                gameArea.classList.remove("game-over");
+                startCountdown();
+            });
         }
     }, 1000);
-    let score = 0;
-    scoreElement.textContent = score;
-    gameArea.innerHTML = `<button id="target" type="button"></button>`;
+}
 
-    target = document.querySelector("#target");
-    moveTarget();
-    target.addEventListener("click", () => {
-        score++;
-        scoreElement.textContent = score;
-        moveTarget();
+function startCountdown() {
+    gameArea.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
     });
 
-});
+    let countdown = 3;
+    gameArea.innerHTML = `<div class="countdown">${countdown}</div>`;
+
+    const countdownInterval = setInterval(() => {
+        countdown--;
+
+        if (countdown > 0) {
+            gameArea.innerHTML = `<div class="countdown">${countdown}</div>`;
+        } else {
+            clearInterval(countdownInterval);
+            startGame();
+        }
+    }, 1000);
+}
 
 function displayLeaderboard() {
     fetch("http://localhost:8080/api/leaderboard")
@@ -78,14 +130,31 @@ function displayLeaderboard() {
             leaderboardList.innerHTML = "";
             scores.forEach(score => {
                 const li = document.createElement("li");
-                li.textContent = `${score.username} : ${score.score}`;
+                li.className = "score-row";
+
+                const formattedDate = new Date(score.date).toLocaleDateString("fr-FR");
+
+                li.innerHTML = `
+    <span>${score.username}</span>
+    <span>${score.score} points</span>
+    <span>${formattedDate}</span>
+`;
+
                 leaderboardList.appendChild(li);
             });
         });
 };
 
 historyBtn.addEventListener("click", () => {
+    if (!username) {
+        window.location.href = "register.html";
+        return;
+    }
+
+    historySection.classList.add("is-open");
+    historyTitle.textContent = "Mes anciens scores";
     historyBtn.style.display = "none";
+    isHistoryVisible = true;
     loadHistory();
 });
 
@@ -113,10 +182,11 @@ function saveScore() {
     })
         .then(response => response.text())
         .then(data => {
-            console.log(data);
             if (data === "Score saved") {
-                loadHistory();
                 displayLeaderboard();
+                if (isHistoryVisible) {
+                    loadHistory();
+                }
             }
         });
 }
@@ -139,7 +209,8 @@ function loadHistory() {
 
             scores.forEach(score => {
                 const li = document.createElement("li");
-                li.textContent = `Score : ${score.score} - le ${score.date}`;
+                const formattedDate = new Date(score.date).toLocaleDateString("fr-FR");
+                li.textContent = `${formattedDate} - ${score.score} points`;
                 scoreHistory.appendChild(li);
             });
         });
