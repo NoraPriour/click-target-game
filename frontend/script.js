@@ -18,6 +18,8 @@ const username = localStorage.getItem("username");
 const userStatus = document.getElementById("user-status");
 const logoutBtn = document.querySelector("#logout-btn");
 
+const API_URL = "http://localhost:8080/api";
+
 displayLeaderboard();
 
 if (username) {
@@ -71,33 +73,7 @@ function startGame() {
 
         if (timeLeft === 0) {
             clearInterval(timerInterval);
-            gameArea.classList.add("game-over");
-
-            if (username) {
-                gameArea.innerHTML = `
-    <div class="game-over-content">
-        <h2>Temps écoulé !</h2>
-        <p>Ton score : ${scoreElement.textContent}</p>
-        <button id="replay-btn" type="button">Rejouer</button>
-    </div>
-`;
-                saveScore();
-            } else {
-                gameArea.innerHTML = `
-    <div class="game-over-content">
-        <h2>Temps écoulé !</h2>
-        <p>Ton score : ${scoreElement.textContent}</p>
-        <a href="register.html">Crée ton compte pour sauvegarder tes scores.</a>
-        <button id="replay-btn" type="button">Rejouer en mode invité</button>
-    </div>
-`;
-            }
-            const replayBtn = document.querySelector("#replay-btn");
-
-            replayBtn.addEventListener("click", () => {
-                gameArea.classList.remove("game-over");
-                startCountdown();
-            });
+            showGameOver(score);
         }
     }, 1000);
 }
@@ -123,41 +99,6 @@ function startCountdown() {
     }, 1000);
 }
 
-function displayLeaderboard() {
-    fetch("http://localhost:8080/api/leaderboard")
-        .then(response => response.json())
-        .then(scores => {
-            leaderboardList.innerHTML = "";
-            scores.forEach(score => {
-                const li = document.createElement("li");
-                li.className = "score-row";
-
-                const formattedDate = new Date(score.date).toLocaleDateString("fr-FR");
-
-                li.innerHTML = `
-    <span>${score.username}</span>
-    <span>${score.score} points</span>
-    <span>${formattedDate}</span>
-`;
-
-                leaderboardList.appendChild(li);
-            });
-        });
-};
-
-historyBtn.addEventListener("click", () => {
-    if (!username) {
-        window.location.href = "register.html";
-        return;
-    }
-
-    historySection.classList.add("is-open");
-    historyTitle.textContent = "Mes anciens scores";
-    historyBtn.style.display = "none";
-    isHistoryVisible = true;
-    loadHistory();
-});
-
 function moveTarget() {
     const gameAreaRect = gameArea.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
@@ -169,8 +110,38 @@ function moveTarget() {
     target.style.top = `${randomY}px`;
 }
 
+function showGameOver(score) {
+    gameArea.classList.add("game-over");
+
+    if (username) {
+        gameArea.innerHTML = `
+            <div class="game-over-content">
+                <h2>Temps écoulé !</h2>
+                <p>Ton score : ${score}</p>
+                <button id="replay-btn" type="button">Rejouer</button>
+            </div>
+`;
+        saveScore();
+    } else {
+        gameArea.innerHTML = `
+            <div class="game-over-content">
+                <h2>Temps écoulé !</h2>
+                <p>Ton score : ${score}</p>
+                <a href="register.html">Crée ton compte pour sauvegarder tes scores.</a>
+                <button id="replay-btn" type="button">Rejouer en mode invité</button>
+            </div>
+`;
+    }
+    const replayBtn = document.querySelector("#replay-btn");
+
+    replayBtn.addEventListener("click", () => {
+        gameArea.classList.remove("game-over");
+        startCountdown();
+    });
+}
+
 function saveScore() {
-    fetch("http://localhost:8080/api/scores", {
+    fetch(`${API_URL}/scores`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -191,13 +162,48 @@ function saveScore() {
         });
 }
 
+function displayLeaderboard() {
+    fetch(`${API_URL}/leaderboard`)
+        .then(response => response.json())
+        .then(scores => {
+            leaderboardList.innerHTML = "";
+            scores.forEach(score => {
+                const li = document.createElement("li");
+                li.className = "score-row";
+
+                const formattedDate = formatDate(score.date);
+
+                li.innerHTML = `
+                    <span>${score.username}</span>
+                    <span>${score.score} points</span>
+                    <span>${formattedDate}</span>
+                `;
+
+                leaderboardList.appendChild(li);
+            });
+        });
+};
+
+historyBtn.addEventListener("click", () => {
+    if (!username) {
+        window.location.href = "register.html";
+        return;
+    }
+
+    historySection.classList.add("is-open");
+    historyTitle.textContent = "Mes anciens scores";
+    historyBtn.style.display = "none";
+    isHistoryVisible = true;
+    loadHistory();
+});
+
 function loadHistory() {
     if (!username) {
         scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique.</li>";
         return;
     }
 
-    fetch(`http://localhost:8080/api/scores/${username}`)
+    fetch(`${API_URL}/scores/${username}`)
         .then(response => response.json())
         .then(scores => {
             scoreHistory.innerHTML = "";
@@ -209,9 +215,13 @@ function loadHistory() {
 
             scores.forEach(score => {
                 const li = document.createElement("li");
-                const formattedDate = new Date(score.date).toLocaleDateString("fr-FR");
+                const formattedDate = formatDate(score.date);
                 li.textContent = `${formattedDate} - ${score.score} points`;
                 scoreHistory.appendChild(li);
             });
         });
 };
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString("fr-FR");
+}
