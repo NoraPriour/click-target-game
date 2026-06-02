@@ -188,14 +188,16 @@ function displayLeaderboard() {
                 const li = document.createElement("li");
                 li.className = "score-row";
 
-                const formattedDate = formatDate(score.date);
+                const usernameSpan = document.createElement("span");
+                usernameSpan.textContent = score.username;
 
-                li.innerHTML = `
-                    <span>${score.username}</span>
-                    <span>${score.score} points</span>
-                    <span>${formattedDate}</span>
-                `;
+                const scoreSpan = document.createElement("span");
+                scoreSpan.textContent = `${score.score} points`;
 
+                const dateSpan = document.createElement("span");
+                dateSpan.textContent = formatDate(score.date);
+
+                li.append(usernameSpan, scoreSpan, dateSpan);
                 leaderboardList.appendChild(li);
             });
         });

@@ -26,7 +26,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/index.html", "/login.html", "/register.html",
                                 "/style.css", "/script.js", "/login.js", "/register.js",
-                                "/api/register", "/api/login", "/api/leaderboard"
+                                "/api/register", "/api/login", "/api/leaderboard",
+                                "/error"
                         )
                         .permitAll().anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())

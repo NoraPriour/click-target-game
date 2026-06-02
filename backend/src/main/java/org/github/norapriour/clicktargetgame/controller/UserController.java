@@ -3,6 +3,9 @@ package org.github.norapriour.clicktargetgame.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import org.github.norapriour.clicktargetgame.dto.LoginRequest;
+import org.github.norapriour.clicktargetgame.dto.RegisterRequest;
 import org.github.norapriour.clicktargetgame.model.User;
 import org.github.norapriour.clicktargetgame.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -56,31 +59,43 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(
-            @RequestBody User user,
+            @Valid @RequestBody RegisterRequest requestBody,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(requestBody.getUsername()).isPresent()) {
             return "Username already exists";
         }
 
-        String plainPassword = user.getPassword();
+        User user = new User(
+                requestBody.getUsername(),
+                passwordEncoder.encode(requestBody.getPassword())
+        );
 
-        user.setPassword(passwordEncoder.encode(plainPassword));
         userRepository.save(user);
 
-        authenticateUser(user.getUsername(), plainPassword, request, response);
+        authenticateUser(
+                requestBody.getUsername(),
+                requestBody.getPassword(),
+                request,
+                response
+        );
 
         return "User created";
     }
 
     @PostMapping("/login")
     public String login(
-            @RequestBody User user,
+            @Valid @RequestBody LoginRequest requestBody,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        authenticateUser(user.getUsername(), user.getPassword(), request, response);
+        authenticateUser(
+                requestBody.getUsername(),
+                requestBody.getPassword(),
+                request,
+                response
+        );
 
         return "Login successful";
     }

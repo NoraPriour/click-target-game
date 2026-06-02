@@ -1,5 +1,6 @@
 package org.github.norapriour.clicktargetgame.controller;
 
+import jakarta.validation.Valid;
 import org.github.norapriour.clicktargetgame.dto.LeaderboardResponse;
 import org.github.norapriour.clicktargetgame.dto.ScoreRequest;
 import org.github.norapriour.clicktargetgame.model.Score;
@@ -25,7 +26,7 @@ public class ScoreController {
 
     @PostMapping("/scores")
     public String saveScore(
-            @RequestBody ScoreRequest scoreRequest,
+            @Valid @RequestBody ScoreRequest scoreRequest,
             Authentication authentication
     ) {
         User user = userRepository.findByUsername(authentication.getName())
