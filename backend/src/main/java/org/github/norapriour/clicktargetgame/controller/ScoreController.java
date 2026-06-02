@@ -3,6 +3,7 @@ package org.github.norapriour.clicktargetgame.controller;
 import jakarta.validation.Valid;
 import org.github.norapriour.clicktargetgame.dto.LeaderboardResponse;
 import org.github.norapriour.clicktargetgame.dto.ScoreRequest;
+import org.github.norapriour.clicktargetgame.dto.ScoreResponse;
 import org.github.norapriour.clicktargetgame.model.Score;
 import org.github.norapriour.clicktargetgame.model.User;
 import org.github.norapriour.clicktargetgame.repository.ScoreRepository;
@@ -51,10 +52,16 @@ public class ScoreController {
     }
 
     @GetMapping("/scores/me")
-    public List<Score> getCurrentUserScores(Authentication authentication) {
+    public List<ScoreResponse> getCurrentUserScores(Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow();
 
-        return scoreRepository.findByUser(user);
+        return scoreRepository.findByUser(user)
+                .stream()
+                .map(score -> new ScoreResponse(
+                        score.getScore(),
+                        score.getDate()
+                ))
+                .toList();
     }
 }
