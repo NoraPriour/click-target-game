@@ -23,8 +23,7 @@ registerForm.addEventListener("submit", (event) => {
 
             if (data === "User created") {
                 message.className = "success";
-                localStorage.setItem("username", username);
-
+                
                 const playButton = document.createElement("button");
                 playButton.type = "button";
                 playButton.textContent = "Jouer !";

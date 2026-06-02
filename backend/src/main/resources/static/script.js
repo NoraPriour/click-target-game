@@ -14,7 +14,7 @@ const scoreHistory = document.querySelector("#score-history");
 
 const registerLink = document.querySelector("#register-link");
 const loginLink = document.querySelector("#login-link");
-const username = localStorage.getItem("username");
+let username = null;
 const userStatus = document.getElementById("user-status");
 const logoutBtn = document.querySelector("#logout-btn");
 
@@ -22,23 +22,41 @@ const API_URL = "/api";
 
 displayLeaderboard();
 
-if (username) {
-    userStatus.textContent = `Connecté en tant que ${username}`;
-    registerLink.style.display = "none";
-    loginLink.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-    historyBtn.textContent = "Voir mes anciens scores";
-    logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("username");
+loadCurrentUser();
+
+function loadCurrentUser() {
+    fetch(`${API_URL}/me`)
+        .then(response => {
+            if (!response.ok) {
+                return null;
+            }
+
+            return response.text();
+        })
+        .then(currentUsername => {
+            username = currentUsername;
+
+            if (username) {
+                userStatus.textContent = `Connecté en tant que ${username}`;
+                registerLink.style.display = "none";
+                loginLink.style.display = "none";
+                logoutBtn.style.display = "inline-block";
+                historyBtn.textContent = "Voir mes anciens scores";
+            } else {
+                userStatus.textContent = "Non connecté";
+                logoutBtn.style.display = "none";
+                historyBtn.textContent = "S'inscrire pour voir mes anciens scores";
+            }
+        });
+}
+
+logoutBtn.addEventListener("click", () => {
+    fetch(`${API_URL}/logout`, {
+        method: "POST"
+    }).then(() => {
         window.location.reload();
     });
-
-} else {
-    userStatus.textContent = "Non connecté";
-    logoutBtn.style.display = "none";
-    historyBtn.textContent = "S'inscrire pour voir mes anciens scores";
-
-}
+});
 
 let target;
 let isHistoryVisible = false;
@@ -147,7 +165,6 @@ function saveScore() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            username: username,
             score: Number(scoreElement.textContent)
         })
     })
@@ -203,7 +220,7 @@ function loadHistory() {
         return;
     }
 
-    fetch(`${API_URL}/scores/${username}`)
+    fetch(`${API_URL}/scores/me`)
         .then(response => response.json())
         .then(scores => {
             scoreHistory.innerHTML = "";

@@ -6,14 +6,13 @@ import org.github.norapriour.clicktargetgame.model.Score;
 import org.github.norapriour.clicktargetgame.model.User;
 import org.github.norapriour.clicktargetgame.repository.ScoreRepository;
 import org.github.norapriour.clicktargetgame.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class ScoreController {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
@@ -25,16 +24,14 @@ public class ScoreController {
     }
 
     @PostMapping("/scores")
-    public String saveScore(@RequestBody ScoreRequest scoreRequest) {
-        Optional<User> existingUser = userRepository.findByUsername(scoreRequest.getUsername());
+    public String saveScore(
+            @RequestBody ScoreRequest scoreRequest,
+            Authentication authentication
+    ) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow();
 
-        if (existingUser.isEmpty()) {
-            return "User not found";
-        }
-
-        User user = existingUser.get();
         Score score = new Score(scoreRequest.getScore(), user);
-
         scoreRepository.save(score);
 
         return "Score saved";
@@ -52,15 +49,10 @@ public class ScoreController {
                 .toList();
     }
 
-    @GetMapping("/scores/{username}")
-    public List<Score> getScoresByUsername(@PathVariable String username) {
-        Optional<User> existingUser = userRepository.findByUsername(username);
-
-        if (existingUser.isEmpty()) {
-            return List.of();
-        }
-
-        User user = existingUser.get();
+    @GetMapping("/scores/me")
+    public List<Score> getCurrentUserScores(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow();
 
         return scoreRepository.findByUser(user);
     }

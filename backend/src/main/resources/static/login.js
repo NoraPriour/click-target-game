@@ -16,7 +16,6 @@ loginForm.addEventListener("submit", (event) => {
         .then(response => response.text())
         .then(data => {
             if (data === "Login successful") {
-                localStorage.setItem("username", username);
                 window.location.href = "index.html";
             }
             const message = document.querySelector("#message");
