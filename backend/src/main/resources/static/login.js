@@ -6,7 +6,7 @@ loginForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
-    fetch(`${API_URL}/login`, {
+    csrfFetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

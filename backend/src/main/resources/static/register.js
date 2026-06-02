@@ -9,7 +9,7 @@ registerForm.addEventListener("submit", (event) => {
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
     submitButton.disabled = true;
-    fetch(`${API_URL}/register`, {
+    csrfFetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -23,7 +23,7 @@ registerForm.addEventListener("submit", (event) => {
 
             if (data === "User created") {
                 message.className = "success";
-                
+
                 const playButton = document.createElement("button");
                 playButton.type = "button";
                 playButton.textContent = "Jouer !";

@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,6 +27,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void registerAutomaticallyLogsUserIn() throws Exception {
         MvcResult registerResult = mockMvc.perform(post("/api/register")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -46,6 +48,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void registerRejectsInvalidUsername() throws Exception {
         mockMvc.perform(post("/api/register")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -62,6 +65,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void loginRejectsBadCredentials() throws Exception {
         mockMvc.perform(post("/api/login")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -78,6 +82,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void authenticatedUserCanSaveAndReadScore() throws Exception {
         MvcResult registerResult = mockMvc.perform(post("/api/register")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -92,6 +97,7 @@ class ClickTargetGameApplicationTests {
         );
 
         mockMvc.perform(post("/api/scores")
+                        .with(csrf())
                         .session(session)
                         .contentType("application/json")
                         .content("""
@@ -113,6 +119,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void anonymousUserCannotSaveScore() throws Exception {
         mockMvc.perform(post("/api/scores")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -125,6 +132,7 @@ class ClickTargetGameApplicationTests {
     @Test
     void logoutRemovesAccessToProtectedRoutes() throws Exception {
         MvcResult registerResult = mockMvc.perform(post("/api/register")
+                        .with(csrf())
                         .contentType("application/json")
                         .content("""
                                 {
@@ -138,10 +146,25 @@ class ClickTargetGameApplicationTests {
                 registerResult.getRequest().getSession(false)
         );
 
-        mockMvc.perform(post("/api/logout").session(session))
+        mockMvc.perform(post("/api/logout")
+                        .with(csrf())
+                        .session(session))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/scores/me").session(session))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void writeRequestWithoutCsrfTokenIsRejected() throws Exception {
+        mockMvc.perform(post("/api/register")
+                        .contentType("application/json")
+                        .content("""
+                            {
+                              "username": "csrf-user",
+                              "password": "password123"
+                            }
+                            """))
                 .andExpect(status().isForbidden());
     }
 }

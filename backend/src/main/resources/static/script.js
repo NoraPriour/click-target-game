@@ -51,7 +51,7 @@ function loadCurrentUser() {
 }
 
 logoutBtn.addEventListener("click", () => {
-    fetch(`${API_URL}/logout`, {
+    csrfFetch(`${API_URL}/logout`, {
         method: "POST"
     }).then(() => {
         window.location.reload();
@@ -159,7 +159,7 @@ function showGameOver(score) {
 }
 
 function saveScore() {
-    fetch(`${API_URL}/scores`, {
+    csrfFetch(`${API_URL}/scores`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

@@ -27,10 +27,9 @@ public class SecurityConfig {
                                 "/", "/index.html", "/login.html", "/register.html",
                                 "/style.css", "/script.js", "/login.js", "/register.js",
                                 "/api/register", "/api/login", "/api/leaderboard",
-                                "/error"
+                                "/error", "/csrf.js", "/api/csrf"
                         )
                         .permitAll().anyRequest().authenticated())
-                .csrf(csrf -> csrf.disable())
                 .build();
     }
 
