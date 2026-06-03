@@ -102,6 +102,18 @@ class ClickTargetGameApplicationTests {
                         .contentType("application/json")
                         .content("""
                                 {
+                                  "score": 10
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Score saved"));
+
+        mockMvc.perform(post("/api/scores")
+                        .with(csrf())
+                        .session(session)
+                        .contentType("application/json")
+                        .content("""
+                                {
                                   "score": 42
                                 }
                                 """))
@@ -112,6 +124,7 @@ class ClickTargetGameApplicationTests {
                         .session(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].score").value(42))
+                .andExpect(jsonPath("$[1].score").value(10))
                 .andExpect(jsonPath("$[0].date").exists())
                 .andExpect(jsonPath("$[0].user").doesNotExist());
     }
@@ -160,11 +173,59 @@ class ClickTargetGameApplicationTests {
         mockMvc.perform(post("/api/register")
                         .contentType("application/json")
                         .content("""
-                            {
-                              "username": "csrf-user",
-                              "password": "password123"
-                            }
-                            """))
+                                {
+                                  "username": "csrf-user",
+                                  "password": "password123"
+                                }
+                                """))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void userCanSortScoreHistoryByBestScore() throws Exception {
+        MvcResult registerResult = mockMvc.perform(post("/api/register")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "username": "sort-user",
+                                  "password": "password123"
+                                }
+                                """))
+                .andReturn();
+
+        MockHttpSession session = (MockHttpSession) Objects.requireNonNull(
+                registerResult.getRequest().getSession(false)
+        );
+
+        mockMvc.perform(post("/api/scores")
+                        .with(csrf())
+                        .session(session)
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "score": 100
+                                }
+                                """))
+                .andExpect(status().isOk());
+
+        Thread.sleep(10);
+
+        mockMvc.perform(post("/api/scores")
+                        .with(csrf())
+                        .session(session)
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "score": 10
+                                }
+                                """))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/scores/me?sort=score")
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].score").value(100))
+                .andExpect(jsonPath("$[1].score").value(10));
     }
 }

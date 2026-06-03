@@ -1,6 +1,6 @@
 const gameArea = document.querySelector(".game-area");
 
-const btnStart = document.querySelector("#start-btn");
+const startButton = document.querySelector("#start-button");
 
 const scoreElement = document.querySelector("#score");
 const timerElement = document.querySelector("#timer");
@@ -8,15 +8,18 @@ const timerElement = document.querySelector("#timer");
 const leaderboardList = document.querySelector("#leaderboard-list");
 
 const historySection = document.querySelector(".history");
+const historySortSection = document.querySelector(".history-sort");
+historySortSection.style.display = "none";
+const historySort = document.querySelector("#history-sort");
 const historyTitle = document.querySelector("#history-title");
-const historyBtn = document.querySelector("#history-btn");
+const historyButton = document.querySelector("#history-button");
 const scoreHistory = document.querySelector("#score-history");
 
 const registerLink = document.querySelector("#register-link");
 const loginLink = document.querySelector("#login-link");
 let username = null;
 const userStatus = document.getElementById("user-status");
-const logoutBtn = document.querySelector("#logout-btn");
+const logoutButton = document.querySelector("#logout-button");
 
 const API_URL = "/api";
 
@@ -40,17 +43,17 @@ function loadCurrentUser() {
                 userStatus.textContent = `Connecté en tant que ${username}`;
                 registerLink.style.display = "none";
                 loginLink.style.display = "none";
-                logoutBtn.style.display = "inline-block";
-                historyBtn.textContent = "Voir mes anciens scores";
+                logoutButton.style.display = "inline-block";
+                historyButton.textContent = "Voir mes anciens scores";
             } else {
                 userStatus.textContent = "Non connecté";
-                logoutBtn.style.display = "none";
-                historyBtn.textContent = "S'inscrire pour voir mes anciens scores";
+                logoutButton.style.display = "none";
+                historyButton.textContent = "S'inscrire pour voir mes anciens scores";
             }
         });
 }
 
-logoutBtn.addEventListener("click", () => {
+logoutButton.addEventListener("click", () => {
     csrfFetch(`${API_URL}/logout`, {
         method: "POST"
     }).then(() => {
@@ -61,8 +64,8 @@ logoutBtn.addEventListener("click", () => {
 let target;
 let isHistoryVisible = false;
 
-btnStart.addEventListener("click", () => {
-    btnStart.style.display = "none";
+startButton.addEventListener("click", () => {
+    startButton.style.display = "none";
     gameArea.classList.remove("game-over");
     startCountdown();
 });
@@ -150,9 +153,9 @@ function showGameOver(score) {
             </div>
 `;
     }
-    const replayBtn = document.querySelector("#replay-btn");
+    const replayButton = document.querySelector("#replay-btn");
 
-    replayBtn.addEventListener("click", () => {
+    replayButton.addEventListener("click", () => {
         gameArea.classList.remove("game-over");
         startCountdown();
     });
@@ -203,7 +206,7 @@ function displayLeaderboard() {
         });
 };
 
-historyBtn.addEventListener("click", () => {
+historyButton.addEventListener("click", () => {
     if (!username) {
         window.location.href = "register.html";
         return;
@@ -211,8 +214,9 @@ historyBtn.addEventListener("click", () => {
 
     historySection.classList.add("is-open");
     historyTitle.textContent = "Mes anciens scores";
-    historyBtn.style.display = "none";
+    historyButton.style.display = "none";
     isHistoryVisible = true;
+    historySortSection.style.display = "block";
     loadHistory();
 });
 
@@ -222,7 +226,7 @@ function loadHistory() {
         return;
     }
 
-    fetch(`${API_URL}/scores/me`)
+    fetch(`${API_URL}/scores/me?sort=${historySort.value}`)
         .then(response => response.json())
         .then(scores => {
             scoreHistory.innerHTML = "";
@@ -240,6 +244,12 @@ function loadHistory() {
             });
         });
 };
+
+historySort.addEventListener("change", () => {
+    if (isHistoryVisible) {
+        loadHistory();
+    }
+});
 
 function formatDate(date) {
     return new Date(date).toLocaleDateString("fr-FR");

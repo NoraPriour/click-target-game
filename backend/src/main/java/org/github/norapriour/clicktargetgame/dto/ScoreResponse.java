@@ -1,12 +1,12 @@
 package org.github.norapriour.clicktargetgame.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ScoreResponse {
     private final int score;
-    private final LocalDate date;
+    private final LocalDateTime date;
 
-    public ScoreResponse(int score, LocalDate date) {
+    public ScoreResponse(int score, LocalDateTime date) {
         this.score = score;
         this.date = date;
     }
@@ -15,7 +15,7 @@ public class ScoreResponse {
         return score;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 }

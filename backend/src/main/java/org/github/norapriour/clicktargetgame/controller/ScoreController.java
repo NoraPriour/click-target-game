@@ -52,12 +52,19 @@ public class ScoreController {
     }
 
     @GetMapping("/scores/me")
-    public List<ScoreResponse> getCurrentUserScores(Authentication authentication) {
+    public List<ScoreResponse> getCurrentUserScores(
+            Authentication authentication,
+            @RequestParam(defaultValue = "date") String sort
+    ) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow();
 
-        return scoreRepository.findByUser(user)
-                .stream()
+        List<Score> scores = switch (sort) {
+            case "score" -> scoreRepository.findByUserOrderByScoreDesc(user);
+            default -> scoreRepository.findByUserOrderByDateDesc(user);
+        };
+
+        return scores.stream()
                 .map(score -> new ScoreResponse(
                         score.getScore(),
                         score.getDate()

@@ -2,7 +2,7 @@ package org.github.norapriour.clicktargetgame.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "scores")
@@ -14,7 +14,7 @@ public class Score {
     @JoinColumn(name = "user_id")
     private User user;
     private int score;
-    private LocalDate date;
+    private LocalDateTime date;
 
     public Score() {
     }
@@ -22,7 +22,7 @@ public class Score {
     public Score(int score, User user) {
         this.score = score;
         this.user = user;
-        this.date = LocalDate.now();
+        this.date = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -49,11 +49,11 @@ public class Score {
         this.score = score;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 }
