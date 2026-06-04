@@ -64,7 +64,7 @@ public class UserController {
             HttpServletResponse response
     ) {
         if (userRepository.findByUsername(requestBody.getUsername()).isPresent()) {
-            return "Username already exists";
+            return "Ce pseudo est déjà utilisé";
         }
 
         User user = new User(
@@ -81,7 +81,7 @@ public class UserController {
                 response
         );
 
-        return "User created";
+        return "Compte créé avec succès !";
     }
 
     @PostMapping("/login")
@@ -97,7 +97,7 @@ public class UserController {
                 response
         );
 
-        return "Login successful";
+        return "Connexion réussie";
     }
 
     @GetMapping("/me")

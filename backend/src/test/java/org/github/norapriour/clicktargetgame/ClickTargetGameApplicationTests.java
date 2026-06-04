@@ -34,9 +34,9 @@ class ClickTargetGameApplicationTests {
                                   "username": "test-user",
                                   "password": "password123"
                                 }
-                                """))
+                """))
                 .andExpect(status().isOk())
-                .andExpect(content().string("User created"))
+                .andExpect(content().string("Compte créé avec succès !"))
                 .andReturn();
 
         mockMvc.perform(get("/api/me")
