@@ -1,5 +1,7 @@
 package org.github.norapriour.clicktargetgame.controller;
 
+import org.github.norapriour.clicktargetgame.dto.ApiMessageResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationError(
+    public ResponseEntity<ApiMessageResponse> handleValidationError(
             MethodArgumentNotValidException exception
     ) {
         String field = exception.getBindingResult()
@@ -29,13 +31,20 @@ public class ApiExceptionHandler {
                     "Les données envoyées sont invalides.";
         };
 
-        return ResponseEntity.badRequest().body(message);
+        return ResponseEntity.badRequest().body(new ApiMessageResponse(false, message));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<String> handleBadCredentials() {
+    public ResponseEntity<ApiMessageResponse> handleBadCredentials() {
         return ResponseEntity
                 .status(401)
-                .body("Pseudo ou mot de passe invalide.");
+                .body(new ApiMessageResponse(false, "Pseudo ou mot de passe invalide."));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiMessageResponse> handleDataIntegrityViolation() {
+        return ResponseEntity
+                .status(409)
+                .body(new ApiMessageResponse(false, "Ce pseudo est déjà utilisé."));
     }
 }

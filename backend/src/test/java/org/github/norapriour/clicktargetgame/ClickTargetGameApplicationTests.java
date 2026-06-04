@@ -36,7 +36,8 @@ class ClickTargetGameApplicationTests {
                                 }
                 """))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Compte créé avec succès !"))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Compte créé avec succès !"))
                 .andReturn();
 
         mockMvc.perform(get("/api/me")
@@ -55,9 +56,10 @@ class ClickTargetGameApplicationTests {
                                   "username": "<script>",
                                   "password": "password123"
                                 }
-                                """))
+                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value(
                         "Le pseudo doit contenir entre 3 et 20 caractères : lettres, chiffres, _ ou -."
                 ));
     }
@@ -72,11 +74,10 @@ class ClickTargetGameApplicationTests {
                                   "username": "unknown-user",
                                   "password": "password123"
                                 }
-                                """))
+                """))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string(
-                        "Pseudo ou mot de passe invalide."
-                ));
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value("Pseudo ou mot de passe invalide."));
     }
 
     @Test

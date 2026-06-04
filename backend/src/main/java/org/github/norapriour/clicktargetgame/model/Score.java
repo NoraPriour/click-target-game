@@ -11,9 +11,10 @@ public class Score {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     private int score;
+    @Column(nullable = false)
     private LocalDateTime date;
 
     public Score() {

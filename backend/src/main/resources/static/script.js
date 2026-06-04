@@ -15,6 +15,7 @@ const historySort = document.querySelector("#history-sort");
 const historyTitle = document.querySelector("#history-title");
 const historyButton = document.querySelector("#history-button");
 const scoreHistory = document.querySelector("#score-history");
+const loadMoreHistoryButton = document.querySelector("#load-more-history-button");
 
 const registerLink = document.querySelector("#register-link");
 const loginLink = document.querySelector("#login-link");
@@ -192,7 +193,7 @@ function saveScore() {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error("Impossible d'enregistrer le score.");
+                throw new Error("Impossible d'enregistrer le score");
             }
 
             displayLeaderboard();
@@ -209,14 +210,14 @@ function displayLeaderboard() {
     fetch(`${API_URL}/leaderboard`)
         .then(response => {
             if (!response.ok) {
-                throw new Error("Impossible de charger le classement.");
+                throw new Error("Impossible de charger le classement");
             }
 
             return response.json();
         })
         .then(scores => {
             if (!Array.isArray(scores)) {
-                throw new Error("Le format du classement est invalide.");
+                throw new Error("Le format du classement est invalide");
             }
 
             leaderboardList.innerHTML = "";
@@ -245,6 +246,9 @@ function displayLeaderboard() {
         });
 };
 
+let historyPage = 0;
+const HISTORY_PAGE_SIZE = 20;
+
 historyButton.addEventListener("click", () => {
     if (!username) {
         window.location.href = "register.html";
@@ -256,32 +260,40 @@ historyButton.addEventListener("click", () => {
     historyButton.style.display = "none";
     isHistoryVisible = true;
     historySortSection.style.display = "block";
-    loadHistory();
+    historyPage = 0;
+    loadHistory(true);
 });
 
-function loadHistory() {
+loadMoreHistoryButton.style.display = "none";
+loadMoreHistoryButton.addEventListener("click", () => {
+    loadHistory(false);
+});
+
+function loadHistory(reset = false) {
     if (!username) {
-        scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique.</li>";
+        scoreHistory.innerHTML = "<li>Connecte-toi pour voir ton historique</li>";
         return;
     }
 
-    fetch(`${API_URL}/scores/me?sort=${historySort.value}`)
+    fetch(`${API_URL}/scores/me?sort=${historySort.value}&page=${historyPage}&size=${HISTORY_PAGE_SIZE}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error("Impossible de charger ton historique.");
+                throw new Error("Impossible de charger ton historique");
             }
 
             return response.json();
         })
         .then(scores => {
             if (!Array.isArray(scores)) {
-                throw new Error("Le format de l'historique est invalide.");
+                throw new Error("Le format de l'historique est invalide");
             }
 
-            scoreHistory.innerHTML = "";
+            if (reset) {
+                scoreHistory.innerHTML = "";
+            }
 
             if (scores.length === 0) {
-                scoreHistory.innerHTML = "<li>Aucune partie enregistrée.</li>";
+                scoreHistory.innerHTML = "<li>Aucune partie enregistrée</li>";
                 return;
             }
 
@@ -291,6 +303,11 @@ function loadHistory() {
                 li.textContent = `${formattedDate} - ${score.score} points`;
                 scoreHistory.appendChild(li);
             });
+
+            loadMoreHistoryButton.style.display =
+                scores.length === HISTORY_PAGE_SIZE ? "inline-block" : "none";
+
+            historyPage++;
         })
         .catch(error => {
             scoreHistory.innerHTML = "";
@@ -302,7 +319,8 @@ function loadHistory() {
 
 historySort.addEventListener("change", () => {
     if (isHistoryVisible) {
-        loadHistory();
+        historyPage = 0;
+        loadHistory(true);
     }
 });
 

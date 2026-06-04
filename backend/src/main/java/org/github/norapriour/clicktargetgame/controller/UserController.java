@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.github.norapriour.clicktargetgame.dto.ApiMessageResponse;
 import org.github.norapriour.clicktargetgame.dto.LoginRequest;
 import org.github.norapriour.clicktargetgame.dto.RegisterRequest;
 import org.github.norapriour.clicktargetgame.model.User;
@@ -54,17 +55,22 @@ public class UserController {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
+
+        request.getSession();
+        request.changeSessionId();
+
         securityContextRepository.saveContext(context, request, response);
     }
 
     @PostMapping("/register")
-    public String register(
+    public ResponseEntity<ApiMessageResponse> register(
             @Valid @RequestBody RegisterRequest requestBody,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         if (userRepository.findByUsername(requestBody.getUsername()).isPresent()) {
-            return "Ce pseudo est déjà utilisé";
+            return ResponseEntity.status(409)
+                    .body(new ApiMessageResponse(false, "Ce pseudo est déjà utilisé."));
         }
 
         User user = new User(
@@ -81,11 +87,11 @@ public class UserController {
                 response
         );
 
-        return "Compte créé avec succès !";
+        return ResponseEntity.ok(new ApiMessageResponse(true, "Compte créé avec succès !"));
     }
 
     @PostMapping("/login")
-    public String login(
+    public ResponseEntity<ApiMessageResponse> login(
             @Valid @RequestBody LoginRequest requestBody,
             HttpServletRequest request,
             HttpServletResponse response
@@ -97,7 +103,7 @@ public class UserController {
                 response
         );
 
-        return "Connexion réussie";
+        return ResponseEntity.ok(new ApiMessageResponse(true, "Connexion réussie"));
     }
 
     @GetMapping("/me")

@@ -18,11 +18,11 @@ registerForm.addEventListener("submit", (event) => {
         },
         body: JSON.stringify({ username: username, password: password })
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            message.textContent = data;
+            message.textContent = data.message;
 
-            if (data === "Compte créé avec succès !") {
+            if (data.success) {
                 message.className = "success";
                 submitButton.style.display = "none";
 

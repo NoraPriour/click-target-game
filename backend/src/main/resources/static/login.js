@@ -15,15 +15,14 @@ loginForm.addEventListener("submit", (event) => {
         },
         body: JSON.stringify({ username: username, password: password })
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            if (data === "Connexion réussie") {
+            if (data.success) {
                 window.location.href = "index.html";
                 return;
             }
 
-            message.textContent = data;
-
+            message.textContent = data.message;
             message.className = "error";
         })
         .catch(error => {
