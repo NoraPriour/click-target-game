@@ -1,6 +1,7 @@
 const gameArea = document.querySelector(".game-area");
 
 const startButton = document.querySelector("#start-button");
+const gameAreaStartButton = document.querySelector("#game-area-start-button");
 
 const scoreElement = document.querySelector("#score");
 const timerElement = document.querySelector("#timer");
@@ -22,6 +23,8 @@ const userStatus = document.getElementById("user-status");
 const logoutButton = document.querySelector("#logout-button");
 
 const API_URL = "/api";
+const COUNTDOWN_TOTAL_MS = 4500;
+const COUNTDOWN_STEP_MS = COUNTDOWN_TOTAL_MS / 3;
 
 displayLeaderboard();
 
@@ -43,10 +46,10 @@ function loadCurrentUser() {
                 userStatus.textContent = `Connecté en tant que ${username}`;
                 registerLink.style.display = "none";
                 loginLink.style.display = "none";
-                logoutButton.style.display = "inline-block";
+                logoutButton.style.display = "block";
                 historyButton.textContent = "Voir mes anciens scores";
             } else {
-                userStatus.textContent = "Non connecté";
+                userStatus.textContent = "";
                 logoutButton.style.display = "none";
                 historyButton.textContent = "S'inscrire pour voir mes anciens scores";
             }
@@ -58,17 +61,16 @@ logoutButton.addEventListener("click", () => {
         method: "POST"
     }).then(() => {
         window.location.reload();
+    }).catch(error => {
+        console.error(error.message);
     });
 });
 
 let target;
 let isHistoryVisible = false;
 
-startButton.addEventListener("click", () => {
-    startButton.style.display = "none";
-    gameArea.classList.remove("game-over");
-    startCountdown();
-});
+startButton.addEventListener("click", startCountdown);
+gameAreaStartButton.addEventListener("click", startCountdown);
 
 function startGame() {
     let timeLeft = 30;
@@ -99,25 +101,40 @@ function startGame() {
     }, 1000);
 }
 
+let isGameStarting = false;
+
 function startCountdown() {
+    if (isGameStarting) {
+        return;
+    }
+
+    isGameStarting = true;
+
+    startButton.style.display = "none";
+    gameAreaStartButton.style.display = "none";
+    gameArea.classList.remove("game-over");
+
     gameArea.scrollIntoView({
         behavior: "smooth",
         block: "center"
     });
 
-    let countdown = 3;
-    gameArea.innerHTML = `<div class="countdown">${countdown}</div>`;
+    gameArea.innerHTML = `
+        <div class="countdown-sequence" style="
+            --countdown-step-duration: ${COUNTDOWN_STEP_MS}ms;
+            --countdown-second-delay: ${COUNTDOWN_STEP_MS}ms;
+            --countdown-third-delay: ${COUNTDOWN_STEP_MS * 2}ms;
+        ">
+            <span>3</span>
+            <span>2</span>
+            <span>1</span>
+        </div>
+    `;
 
-    const countdownInterval = setInterval(() => {
-        countdown--;
-
-        if (countdown > 0) {
-            gameArea.innerHTML = `<div class="countdown">${countdown}</div>`;
-        } else {
-            clearInterval(countdownInterval);
+    setTimeout(() => {
+        isGameStarting = false;
             startGame();
-        }
-    }, 1000);
+    }, COUNTDOWN_TOTAL_MS);
 }
 
 function moveTarget() {
@@ -148,8 +165,10 @@ function showGameOver(score) {
             <div class="game-over-content">
                 <h2>Temps écoulé !</h2>
                 <p>Ton score : ${score}</p>
-                <a href="register.html">Crée ton compte pour sauvegarder tes scores.</a>
+                <div class="game-over-actions">
+                    <a class="button" href="register.html">Crée ton compte pour sauvegarder tes scores</a>
                 <button id="replay-btn" type="button">Rejouer en mode invité</button>
+                </div>
             </div>
 `;
     }
@@ -242,6 +261,12 @@ function loadHistory() {
                 li.textContent = `${formattedDate} - ${score.score} points`;
                 scoreHistory.appendChild(li);
             });
+        })
+        .catch(error => {
+            scoreHistory.innerHTML = "";
+            const li = document.createElement("li");
+            li.textContent = error.message;
+            scoreHistory.appendChild(li);
         });
 };
 

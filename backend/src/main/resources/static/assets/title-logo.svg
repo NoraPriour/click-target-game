@@ -1,0 +1,38 @@
+<svg width="560" height="104" viewBox="0 0 560 104" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Click Target Game</title>
+  <desc id="desc">Logo simple Click Target avec un viseur et un titre arcade minimaliste.</desc>
+
+  <defs>
+    <linearGradient id="warmStroke" x1="8" y1="8" x2="92" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A5C"/>
+      <stop offset="0.5" stop-color="#FF4A4F"/>
+      <stop offset="1" stop-color="#D93439"/>
+    </linearGradient>
+
+    <linearGradient id="targetFill" x1="43" y1="39" x2="64" y2="67" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB020"/>
+      <stop offset="1" stop-color="#FF3F46"/>
+    </linearGradient>
+
+    <linearGradient id="titleWarm" x1="248" y1="20" x2="548" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB020"/>
+      <stop offset="0.42" stop-color="#FF5F4A"/>
+      <stop offset="1" stop-color="#FF3F46"/>
+    </linearGradient>
+  </defs>
+
+  <g>
+    <circle cx="52" cy="52" r="27" stroke="url(#warmStroke)" stroke-width="6"/>
+    <path d="M52 10V29" stroke="url(#warmStroke)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M52 75V94" stroke="url(#warmStroke)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M10 52H29" stroke="url(#warmStroke)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M75 52H94" stroke="url(#warmStroke)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="52" cy="52" r="10" fill="#07162C"/>
+    <circle cx="52" cy="52" r="6" fill="url(#targetFill)"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" letter-spacing="3">
+    <text x="118" y="47" font-size="38" fill="#FFF4DF">CLICK</text>
+    <text x="118" y="86" font-size="38" fill="url(#titleWarm)">TARGET GAME</text>
+  </g>
+</svg>

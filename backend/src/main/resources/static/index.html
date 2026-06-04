@@ -10,13 +10,21 @@
 
 <body>
     <header>
-        <h1>Click Target Game</h1>
-        <div class="auth-links">
-            <a id="register-link" href="register.html" class="button">S'inscrire</a>
-            <a id="login-link" href="login.html" class="button">Se connecter</a>
+        <div class="header-content">
+            <h1 class="site-title">
+                <img class="title-logo" src="assets/title-logo.svg" alt="Click Target Game">
+            </h1>
+            <div class="header-actions">
+                <div class="auth-links">
+                    <a id="register-link" href="register.html" class="button">S'inscrire</a>
+                    <a id="login-link" href="login.html" class="button">Se connecter</a>
+                </div>
+                <div class="session-actions">
+                    <p id="user-status"></p>
+                    <button id="logout-button" type="button">Se déconnecter</button>
+                </div>
+            </div>
         </div>
-        <p id="user-status"></p>
-        <button id="logout-button" type="button">Se déconnecter</button>
     </header>
 
     <main>
@@ -30,9 +38,10 @@
         <section class="game">
             <div class="game-info">
                 <p>Score : <span id="score">0</span></p>
-                <p>Temps : <span id="timer">30</span>s</p>
+                <p>Temps : <span id="timer">30</span></p>
             </div>
             <div class="game-area">
+                <button id="game-area-start-button" type="button">Commencer</button>
             </div>
         </section>
 
