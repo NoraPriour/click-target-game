@@ -8,6 +8,8 @@ registerForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
+    const message = document.querySelector("#message");
+
     submitButton.disabled = true;
     csrfFetch(`${API_URL}/register`, {
         method: "POST",
@@ -18,11 +20,11 @@ registerForm.addEventListener("submit", (event) => {
     })
         .then(response => response.text())
         .then(data => {
-            const message = document.querySelector("#message");
             message.textContent = data;
 
-            if (data === "User created") {
+            if (data === "Compte créé avec succès !") {
                 message.className = "success";
+                submitButton.style.display = "none";
 
                 const playButton = document.createElement("button");
                 playButton.type = "button";
@@ -40,8 +42,7 @@ registerForm.addEventListener("submit", (event) => {
             }
         })
         .catch(error => {
-            const message = document.querySelector("#message");
-            message.textContent = "Impossible de contacter le serveur.";
+            message.textContent = error.message || "Impossible de contacter le serveur.";
             message.className = "error";
             submitButton.disabled = false;
         });

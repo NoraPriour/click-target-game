@@ -133,7 +133,7 @@ function startCountdown() {
 
     setTimeout(() => {
         isGameStarting = false;
-            startGame();
+        startGame();
     }, COUNTDOWN_TOTAL_MS);
 }
 
@@ -167,7 +167,7 @@ function showGameOver(score) {
                 <p>Ton score : ${score}</p>
                 <div class="game-over-actions">
                     <a class="button" href="register.html">Crée ton compte pour sauvegarder tes scores</a>
-                <button id="replay-btn" type="button">Rejouer en mode invité</button>
+                    <button id="replay-btn" type="button">Rejouer en mode invité</button>
                 </div>
             </div>
 `;
@@ -190,21 +190,35 @@ function saveScore() {
             score: Number(scoreElement.textContent)
         })
     })
-        .then(response => response.text())
-        .then(data => {
-            if (data === "Score saved") {
-                displayLeaderboard();
-                if (isHistoryVisible) {
-                    loadHistory();
-                }
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Impossible d'enregistrer le score.");
             }
+
+            displayLeaderboard();
+            if (isHistoryVisible) {
+                loadHistory();
+            }
+        })
+        .catch(error => {
+            console.error(error.message);
         });
 }
 
 function displayLeaderboard() {
     fetch(`${API_URL}/leaderboard`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Impossible de charger le classement.");
+            }
+
+            return response.json();
+        })
         .then(scores => {
+            if (!Array.isArray(scores)) {
+                throw new Error("Le format du classement est invalide.");
+            }
+
             leaderboardList.innerHTML = "";
             scores.forEach(score => {
                 const li = document.createElement("li");
@@ -222,6 +236,12 @@ function displayLeaderboard() {
                 li.append(usernameSpan, scoreSpan, dateSpan);
                 leaderboardList.appendChild(li);
             });
+        })
+        .catch(error => {
+            leaderboardList.innerHTML = "";
+            const li = document.createElement("li");
+            li.textContent = error.message;
+            leaderboardList.appendChild(li);
         });
 };
 
@@ -246,8 +266,18 @@ function loadHistory() {
     }
 
     fetch(`${API_URL}/scores/me?sort=${historySort.value}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Impossible de charger ton historique.");
+            }
+
+            return response.json();
+        })
         .then(scores => {
+            if (!Array.isArray(scores)) {
+                throw new Error("Le format de l'historique est invalide.");
+            }
+
             scoreHistory.innerHTML = "";
 
             if (scores.length === 0) {
