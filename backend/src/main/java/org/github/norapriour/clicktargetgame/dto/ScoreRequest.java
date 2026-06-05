@@ -1,16 +1,12 @@
 package org.github.norapriour.clicktargetgame.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 public class ScoreRequest {
-    private String username;
+    @Min(0)
+    @Max(300)
     private int score;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public int getScore() {
         return score;

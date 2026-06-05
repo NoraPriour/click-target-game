@@ -2,26 +2,29 @@ const registerForm = document.querySelector("#registerForm");
 const submitButton = registerForm.querySelector("button");
 const registerActions = document.querySelector("#register-actions");
 
+const API_URL = "/api";
+
 registerForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
+    const message = document.querySelector("#message");
+
     submitButton.disabled = true;
-    fetch("http://localhost:8080/api/register", {
+    csrfFetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ username: username, password: password })
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            const message = document.querySelector("#message");
-            message.textContent = data;
+            message.textContent = data.message;
 
-            if (data === "User created") {
+            if (data.success) {
                 message.className = "success";
-                localStorage.setItem("username", username);
+                submitButton.style.display = "none";
 
                 const playButton = document.createElement("button");
                 playButton.type = "button";
@@ -39,8 +42,7 @@ registerForm.addEventListener("submit", (event) => {
             }
         })
         .catch(error => {
-            const message = document.querySelector("#message");
-            message.textContent = "Impossible de contacter le serveur.";
+            message.textContent = error.message || "Impossible de contacter le serveur.";
             message.className = "error";
             submitButton.disabled = false;
         });

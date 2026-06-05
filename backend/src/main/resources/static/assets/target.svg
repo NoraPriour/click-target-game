@@ -1,0 +1,38 @@
+<svg width="162" height="162" viewBox="15 15 162 162" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cible Click Target</title>
+  <desc id="desc">Viseur circulaire rouge-orange avec quatre reperes et un point central.</desc>
+
+  <defs>
+    <linearGradient id="targetStroke" x1="36" y1="20" x2="156" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A5C"/>
+      <stop offset="0.45" stop-color="#FF4A4F"/>
+      <stop offset="1" stop-color="#D93439"/>
+    </linearGradient>
+
+    <linearGradient id="targetCenter" x1="84" y1="78" x2="111" y2="115" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB020"/>
+      <stop offset="0.45" stop-color="#FF5F4A"/>
+      <stop offset="1" stop-color="#FF3F46"/>
+    </linearGradient>
+
+    <linearGradient id="targetHighlight" x1="58" y1="35" x2="117" y2="94" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4DF" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FFF4DF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <g pointer-events="visiblePainted">
+    <circle cx="96" cy="96" r="57" stroke="url(#targetStroke)" stroke-width="10"/>
+
+    <path d="M96 20V58" stroke="url(#targetStroke)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M96 134V172" stroke="url(#targetStroke)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M20 96H58" stroke="url(#targetStroke)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M134 96H172" stroke="url(#targetStroke)" stroke-width="10" stroke-linecap="round"/>
+
+    <circle cx="96" cy="96" r="17" fill="#061225" fill-opacity="0.9"/>
+    <circle cx="96" cy="96" r="11" fill="url(#targetCenter)"/>
+    <circle cx="96" cy="96" r="4" fill="#FFF4DF" fill-opacity="0.65"/>
+
+    <path d="M58 58C68 48 81 42 96 42" stroke="url(#targetHighlight)" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

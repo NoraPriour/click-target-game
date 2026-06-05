@@ -10,28 +10,38 @@
 
 <body>
     <header>
-        <h1>Click Target Game</h1>
-        <div class="auth-links">
-            <a id="register-link" href="register.html" class="btn">S'inscrire</a>
-            <a id="login-link" href="login.html" class="btn">Se connecter</a>
+        <div class="header-content">
+            <h1 class="site-title">
+                <img class="title-logo" src="assets/title-logo.svg" alt="Click Target Game">
+            </h1>
+            <div class="header-actions">
+                <div class="auth-links">
+                    <a id="register-link" href="register.html" class="button">S'inscrire</a>
+                    <a id="login-link" href="login.html" class="button">Se connecter</a>
+                </div>
+                <div class="session-actions">
+                    <p id="user-status"></p>
+                    <button id="logout-button" type="button">Se déconnecter</button>
+                </div>
+            </div>
         </div>
-        <p id="user-status"></p>
-        <button id="logout-btn" type="button">Se déconnecter</button>
     </header>
 
     <main>
         <section class="hero">
             <h2>Un mini jeu de rapidité</h2>
-            <p>Clique sur le plus de cibles possible avant la fin des 30 secondes et essaie de battre ton meilleur score !</p>
-            <button id="start-btn" type="button">Commencer</button>
+            <p>Clique sur le plus de cibles possible avant la fin des 30 secondes et essaie de battre ton meilleur score
+                !</p>
+            <button id="start-button" type="button">Commencer</button>
         </section>
 
         <section class="game">
             <div class="game-info">
                 <p>Score : <span id="score">0</span></p>
-                <p>Temps : <span id="timer">30</span>s</p>
+                <p>Temps : <span id="timer">30</span></p>
             </div>
             <div class="game-area">
+                <button id="game-area-start-button" type="button">Commencer</button>
             </div>
         </section>
 
@@ -41,9 +51,17 @@
         </section>
 
         <section class="history">
+            <div class="history-sort">
+                <label for="history-sort">Trier par :</label>
+                <select id="history-sort">
+                    <option value="date">Date</option>
+                    <option value="score">Meilleur score</option>
+                </select>
+            </div>
             <h2 id="history-title"></h2>
-            <button id="history-btn" type="button"></button>
+            <button id="history-button" type="button"></button>
             <ul id="score-history"></ul>
+            <button id="load-more-history-button" type="button">Voir 20 scores de plus</button>
         </section>
     </main>
 
@@ -76,6 +94,7 @@
 
         <p>&copy; 2026 Click Target Game — Tous droits réservés</p>
     </footer>
+    <script src="csrf.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 

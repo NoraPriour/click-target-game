@@ -1,19 +1,24 @@
 package org.github.norapriour.clicktargetgame.controller;
 
+import jakarta.validation.Valid;
 import org.github.norapriour.clicktargetgame.dto.LeaderboardResponse;
 import org.github.norapriour.clicktargetgame.dto.ScoreRequest;
+import org.github.norapriour.clicktargetgame.dto.ScoreResponse;
 import org.github.norapriour.clicktargetgame.model.Score;
 import org.github.norapriour.clicktargetgame.model.User;
 import org.github.norapriour.clicktargetgame.repository.ScoreRepository;
 import org.github.norapriour.clicktargetgame.repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class ScoreController {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
@@ -24,17 +29,22 @@ public class ScoreController {
         this.userRepository = userRepository;
     }
 
+    private User getAuthenticatedUser(Authentication authentication) {
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Utilisateur introuvable."
+                ));
+    }
+
     @PostMapping("/scores")
-    public String saveScore(@RequestBody ScoreRequest scoreRequest) {
-        Optional<User> existingUser = userRepository.findByUsername(scoreRequest.getUsername());
+    public String saveScore(
+            @Valid @RequestBody ScoreRequest scoreRequest,
+            Authentication authentication
+    ) {
+        User user = getAuthenticatedUser(authentication);
 
-        if (existingUser.isEmpty()) {
-            return "User not found";
-        }
-
-        User user = existingUser.get();
         Score score = new Score(scoreRequest.getScore(), user);
-
         scoreRepository.save(score);
 
         return "Score saved";
@@ -52,16 +62,26 @@ public class ScoreController {
                 .toList();
     }
 
-    @GetMapping("/scores/{username}")
-    public List<Score> getScoresByUsername(@PathVariable String username) {
-        Optional<User> existingUser = userRepository.findByUsername(username);
+    @GetMapping("/scores/me")
+    public List<ScoreResponse> getCurrentUserScores(
+            Authentication authentication,
+            @RequestParam(defaultValue = "date") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        User user = getAuthenticatedUser(authentication);
+        Pageable pageable = PageRequest.of(page, Math.min(size, 50));
 
-        if (existingUser.isEmpty()) {
-            return List.of();
-        }
+        List<Score> scores = switch (sort) {
+            case "score" -> scoreRepository.findByUserOrderByScoreDesc(user, pageable);
+            default -> scoreRepository.findByUserOrderByDateDesc(user, pageable);
+        };
 
-        User user = existingUser.get();
-
-        return scoreRepository.findByUser(user);
+        return scores.stream()
+                .map(score -> new ScoreResponse(
+                        score.getScore(),
+                        score.getDate()
+                ))
+                .toList();
     }
 }
